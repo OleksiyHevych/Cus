@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        h2 {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 90%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        table, th, td {
+            border: 1px solid #dee2e6;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+<h1>Information from Database</h1>
+
+<h2>Buses in Park</h2>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Number</th>
+        <th>Driver Name</th>
+        <th>Route Number</th>
+        <th>In Park</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Loop through each bus in park and display its information -->
+    <tr th:each="bus : ${parkedBuses}">
+        <td th:text="${bus.id}"></td>
+        <td th:text="${bus.number}"></td>
+        <td th:text="${bus.driverName}"></td>
+        <td th:text="${bus.routeNumber}"></td>
+        <td th:text="${bus.inpark} ? 'Yes' : 'No'"></td>
+    </tr>
+    </tbody>
+</table>
+
+<h2>Buses on Route</h2>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Number</th>
+        <th>Driver Name</th>
+        <th>Route Number</th>
+        <th>In Park</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Loop through each bus on route and display its information -->
+    <tr th:each="bus : ${busesOnRoute}">
+        <td th:text="${bus.id}"></td>
+        <td th:text="${bus.number}"></td>
+        <td th:text="${bus.driverName}"></td>
+        <td th:text="${bus.routeNumber}"></td>
+        <td th:text="${bus.inpark} ? 'Yes' : 'No'"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

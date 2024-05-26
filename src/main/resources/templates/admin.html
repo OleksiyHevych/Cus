@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #343a40;
+            margin: 5px 0;
+        }
+
+        table {
+            width: 95%;
+            margin: 5px auto;
+            border-collapse: collapse;
+            background-color: #ffffff;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        table, th, td {
+            border: 1px solid #dee2e6;
+        }
+
+        th, td {
+            padding: 5px;
+            text-align: left;
+            font-size: 0.9em;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        button {
+            padding: 5px;
+            margin: 2px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        form {
+            width: 95%;
+            margin: 10px auto;
+            padding: 10px;
+            background-color: #ffffff;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+
+        input, label {
+            display: block;
+            width: calc(100% - 20px);
+            margin: 5px auto;
+            font-size: 0.9em;
+        }
+
+        input {
+            padding: 5px;
+            border: 1px solid #ced4da;
+            border-radius: 3px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #007bff;
+        }
+
+        .form-group {
+            margin: 5px 0;
+        }
+
+        .form-group button {
+            width: 100%;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+<h1>Information from Database</h1>
+
+<h2>Buses in Park</h2>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Number</th>
+        <th>Driver Name</th>
+        <th>Route Number</th>
+        <th>In Park</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody id="parkedBuses">
+    <!-- Buses in park will be populated here -->
+    </tbody>
+</table>
+
+<h2>Buses on Route</h2>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Number</th>
+        <th>Driver Name</th>
+        <th>Route Number</th>
+        <th>In Park</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody id="busesOnRoute">
+    <!-- Buses on route will be populated here -->
+    </tbody>
+</table>
+
+<!-- Form to add a new bus -->
+<h2>Add a New Bus</h2>
+<form id="addBusForm" onsubmit="return addBus(event)">
+    <div class="form-group">
+        <label for="number">Number:</label>
+        <input type="text" id="number" name="number" required>
+    </div>
+    <div class="form-group">
+        <label for="driverName">Driver Name:</label>
+        <input type="text" id="driverName" name="driverName" required>
+    </div>
+    <div class="form-group">
+        <label for="routeNumber">Route Number:</label>
+        <input type="text" id="routeNumber" name="routeNumber" required>
+    </div>
+    <div class="form-group">
+        <button type="submit">Add Bus</button>
+    </div>
+</form>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        fetch('http://localhost:8082/buses/parked')
+            .then(response => response.json())
+            .then(data => {console.log(data)
+                const parkedBusesTable = document.getElementById('parkedBuses');
+                data.forEach(bus => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${bus.id}</td>
+                        <td>${bus.number}</td>
+                        <td>${bus.driverName}</td>
+                        <td>${bus.routeNumber}</td>
+                        <td>${bus.inpark ? 'Yes' : 'No'}</td>
+                        <td><button onclick="departBus(${bus.id})">Depart</button></td>
+                    `;
+                    parkedBusesTable.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error fetching parked buses:', error));
+
+        fetch('http://localhost:8082/buses/onroute')
+            .then(response => response.json())
+            .then(data => {
+                const busesOnRouteTable = document.getElementById('busesOnRoute');
+                data.forEach(bus => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${bus.id}</td>
+                        <td>${bus.number}</td>
+                        <td>${bus.driverName}</td>
+                        <td>${bus.routeNumber}</td>
+                        <td>${bus.inpark ? 'Yes' : 'No'}</td>
+                        <td><button onclick="arriveBus(${bus.id})">Arrive</button></td>
+                    `;
+                    busesOnRouteTable.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error fetching buses on route:', error));
+    });
+
+    function departBus(id) {
+        fetch(`http://localhost:8082/buses/departure/${id}`, { method: 'PUT' })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Unable to depart bus');
+                }
+                // Reload the page after successful departure
+                location.reload();
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function arriveBus(id) {
+        fetch(`http://localhost:8082/buses/arrival/${id}`, { method: 'PUT' })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Unable to arrive bus');
+                }
+                // Reload the page after successful arrival
+                location.reload();
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function addBus(event) {
+        event.preventDefault();
+        const form = document.getElementById('addBusForm');
+        const data = {
+            number: form.number.value,
+            driverName: form.driverName.value,
+            routeNumber: form.routeNumber.value,
+            inpark: true  // New bus initially in park
+        };
+
+        fetch('http://localhost:8082/buses', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Unable to add bus');
+                }
+                // Reload the page after successful addition
+                location.reload();
+            })
+            .catch(error => console.error('Error:', error));
+    }
+</script>
+</body>
+</html>
